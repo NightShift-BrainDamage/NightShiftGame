@@ -219,7 +219,7 @@
             pointer-events: none;
         }
 
-        /* Scan Effect Circle */
+        /* Scan Effect Circle (1.8s) */
         .scan-circle {
             position: absolute;
             width: 70px;
@@ -335,7 +335,7 @@
         </div>
 
         <div class="viewport-container" id="viewport" onmousedown="startScan(event)" onmouseup="cancelScan()" onmouseleave="cancelScan()" ontouchstart="startScan(event)" ontouchend="cancelScan()">
-            <img id="cctv-img" class="cctv-feed" src="https://lh3.googleusercontent.com/d/1yN_M8fE4H0Y_L0Y9vGf5V3R-M3p0e1q_" alt="CCTV Feed">
+            <img id="cctv-img" class="cctv-feed" src="" alt="CCTV Feed">
             <div class="scanlines"></div>
             <div id="cam-label" class="cam-overlay">CAM1-หน้าบ้าน</div>
             <div id="scan-indicator" class="scan-circle"></div>
@@ -350,20 +350,21 @@
             </div>
 
             <div class="file-upload-row">
-                <label for="img-uploader" class="file-upload-btn">📷 เปลี่ยนภาพกล้องนี้</label>
+                <label for="img-uploader" class="file-upload-btn">📷 เปลี่ยนภาพกล้องนี้เฉพาะกิจ</label>
                 <input type="file" id="img-uploader" accept="image/*" onchange="uploadImage(event)">
             </div>
         </div>
     </div>
 
     <script>
-        const defaultImage = "https://lh3.googleusercontent.com/d/1yN_M8fE4H0Y_L0Y9vGf5V3R-M3p0e1q_";
+        // กำหนดภาพเริ่มต้นของแต่ละกล้อง (สามารถนำโค้ด Base64 มาวางแทน URL ตรงนี้ได้เพื่อฝังภาพถาวร)
+        const defaultImg = "https://lh3.googleusercontent.com/d/1yN_M8fE4H0Y_L0Y9vGf5V3R-M3p0e1q_";
 
         const camData = {
-            1: { name: "CAM1-หน้าบ้าน", img: defaultImage },
-            2: { name: "CAM2-ทางเข้า", img: defaultImage },
-            3: { name: "CAM3-ห้องนอน", img: defaultImage },
-            4: { name: "CAM4-ห้องครัว", img: defaultImage }
+            1: { name: "CAM1-หน้าบ้าน", img: defaultImg },
+            2: { name: "CAM2-ทางเข้า", img: defaultImg },
+            3: { name: "CAM3-ห้องนอน", img: defaultImg },
+            4: { name: "CAM4-ห้องครัว", img: defaultImg }
         };
 
         let currentCam = 1;
