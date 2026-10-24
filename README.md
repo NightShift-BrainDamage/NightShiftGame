@@ -42,8 +42,8 @@
 
         /* --- MENU SCREEN --- */
         #menu-screen {
-            background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), 
-                        url('https://lh3.googleusercontent.com/d/1yN_M8fE4H0Y_L0Y9vGf5V3R-M3p0e1q_') center/cover no-repeat;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
+                        url('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=1000&auto=format&fit=crop') center/cover no-repeat;
             text-align: center;
             padding: 20px;
         }
@@ -357,14 +357,36 @@
     </div>
 
     <script>
-        // กำหนดภาพเริ่มต้นของแต่ละกล้อง (สามารถนำโค้ด Base64 มาวางแทน URL ตรงนี้ได้เพื่อฝังภาพถาวร)
-        const defaultImg = "https://lh3.googleusercontent.com/d/1yN_M8fE4H0Y_L0Y9vGf5V3R-M3p0e1q_";
-
+        // กำหนดภาพเริ่มต้นของแต่ละกล้องให้แตกต่างกันอย่างชัดเจน
         const camData = {
-            1: { name: "CAM1-หน้าบ้าน", img: defaultImg },
-            2: { name: "CAM2-ทางเข้า", img: defaultImg },
-            3: { name: "CAM3-ห้องนอน", img: defaultImg },
-            4: { name: "CAM4-ห้องครัว", img: defaultImg }
+            1: { 
+                name: "CAM1-หน้าบ้าน", 
+                normalImg: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop",
+                anomalyImg: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800&auto=format&fit=crop",
+                hasAnomaly: false,
+                anomalyArea: { x: 200, y: 150, radius: 80 } // พิกัดตัวอย่างจุดผิดปกติ
+            },
+            2: { 
+                name: "CAM2-ทางเข้า", 
+                normalImg: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=800&auto=format&fit=crop",
+                anomalyImg: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop",
+                hasAnomaly: false,
+                anomalyArea: { x: 150, y: 200, radius: 80 }
+            },
+            3: { 
+                name: "CAM3-ห้องนอน", 
+                normalImg: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop",
+                anomalyImg: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop",
+                hasAnomaly: false,
+                anomalyArea: { x: 250, y: 180, radius: 80 }
+            },
+            4: { 
+                name: "CAM4-ห้องครัว", 
+                normalImg: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop",
+                anomalyImg: "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?q=80&w=800&auto=format&fit=crop",
+                hasAnomaly: false,
+                anomalyArea: { x: 180, y: 160, radius: 80 }
+            }
         };
 
         let currentCam = 1;
@@ -373,6 +395,12 @@
         function startGame() {
             document.getElementById('menu-screen').classList.add('hidden');
             document.getElementById('game-screen').classList.remove('hidden');
+            
+            // สุ่มว่ากล้องไหนจะมีสิ่งผิดปกติเมื่อเริ่มเกม
+            for (let i = 1; i <= 4; i++) {
+                camData[i].hasAnomaly = Math.random() < 0.5; // โอกาสเกิด 50%
+            }
+            
             switchCam(1);
         }
 
@@ -388,7 +416,9 @@
 
             const cam = camData[camNum];
             document.getElementById('cam-label').innerText = cam.name;
-            document.getElementById('cctv-img').src = cam.img;
+            
+            // เลือกแสดงภาพปกติหรือภาพผิดปกติ ตามสถานะของกล้องนั้นๆ
+            document.getElementById('cctv-img').src = cam.hasAnomaly ? cam.anomalyImg : cam.normalImg;
         }
 
         function uploadImage(e) {
@@ -396,7 +426,9 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(evt) {
-                    camData[currentCam].img = evt.target.result;
+                    // อัปเดตภาพให้กล้องปัจจุบันเป็นภาพที่ผู้ใช้อัปโหลดทันที
+                    camData[currentCam].normalImg = evt.target.result;
+                    camData[currentCam].anomalyImg = evt.target.result;
                     document.getElementById('cctv-img').src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
@@ -424,7 +456,18 @@
 
             scanTimer = setTimeout(() => {
                 cancelScan();
-                alert(`ตรวจสแกนตำแหน่ง (${Math.round(x)}, ${Math.round(y)}) สำเร็จ!`);
+                
+                const cam = camData[currentCam];
+                // เช็คว่ากดสแกนโดนจุดผิดปกติหรือไม่ (เทียบกับระยะรัศมี)
+                const distance = Math.hypot(x - cam.anomalyArea.x, y - cam.anomalyArea.y);
+                
+                if (cam.hasAnomaly && distance <= cam.anomalyArea.radius) {
+                    alert(`🎉 ยอดเยี่ยม! ตรวจพบความผิดปกติใน ${cam.name} สำเร็จ!`);
+                    cam.hasAnomaly = false; // แก้ไขแล้ว
+                    switchCam(currentCam); // รีเฟรชกลับเป็นปกติ
+                } else {
+                    alert(`🔍 สแกนตำแหน่ง (${Math.round(x)}, ${Math.round(y)}) เรียบร้อย — ไม่พบความผิดปกติพิเศษ`);
+                }
             }, 1800);
         }
 
