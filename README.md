@@ -1,471 +1,544 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Night Shift: Brain Damage</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Night Shift: Brain Damage</title>
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: #050505;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            overflow: hidden;
-        }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
 
-        .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.4s ease;
-        }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #050505;
+  color: white;
+  font-family: Arial, sans-serif;
+}
 
-        .hidden {
-            display: none !important;
-        }
+button { cursor: pointer; }
 
-        /* --- MENU SCREEN --- */
-        #menu-screen {
-            background: #0a0a0a;
-            text-align: center;
-            padding: 20px;
-        }
+.hidden { display: none !important; }
 
-        .menu-title-container {
-            margin-bottom: 25px;
-        }
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-        .main-title {
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(220, 38, 38, 0.8), 2px 2px 4px #000;
-            line-height: 1.1;
-        }
+#menu-screen {
+  background: #0a0a0a;
+  text-align: center;
+  padding: 20px;
+}
 
-        .sub-title {
-            font-size: clamp(1.8rem, 6vw, 3.2rem);
-            font-weight: 900;
-            color: #ef4444;
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.9), 0 0 30px rgba(185, 28, 28, 0.6);
-            margin-top: 5px;
-        }
+.main-title {
+  font-size: clamp(2.5rem, 9vw, 4.5rem);
+  font-weight: 900;
+  text-shadow: 0 0 20px #dc2626;
+}
 
-        .dept-tag {
-            font-size: 0.95rem;
-            color: #d1d5db;
-            letter-spacing: 3px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
+.sub-title {
+  font-size: clamp(1.8rem, 7vw, 3.2rem);
+  color: #ef4444;
+  letter-spacing: 3px;
+  text-shadow: 0 0 20px #b91c1c;
+  margin-bottom: 25px;
+}
 
-        .quote-tag {
-            font-size: 0.85rem;
-            color: #9ca3af;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-        }
+.dept-tag { color: #ddd; margin-bottom: 10px; }
+.quote-tag { color: #999; margin-bottom: 30px; }
 
-        .selector-section {
-            margin: 15px 0 30px;
-            width: 100%;
-            max-width: 400px;
-        }
+.pill-button {
+  display: inline-block;
+  border: 1px solid #777;
+  border-radius: 30px;
+  padding: 10px 24px;
+  margin: 15px;
+}
 
-        .section-label {
-            font-size: 0.8rem;
-            color: #ef4444;
-            letter-spacing: 2px;
-            margin-top: 8px;
-            text-transform: uppercase;
-        }
+.section-label {
+  color: #ef4444;
+  font-size: 12px;
+}
 
-        .pill-button {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: #ffffff;
-            padding: 10px 24px;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            display: inline-block;
-            margin: 5px;
-        }
+.start-btn {
+  padding: 13px 45px;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+}
 
-        .pill-button.active {
-            border-color: #ffffff;
-            background: rgba(255, 255, 255, 0.2);
-        }
+#game-screen {
+  background: black;
+  justify-content: space-between;
+}
 
-        .start-btn {
-            background: #ffffff;
-            color: #000000;
-            border: none;
-            padding: 12px 45px;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
-        }
+.top-bar {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #101010;
+  border-bottom: 1px solid #333;
+  z-index: 5;
+}
 
-        /* --- GAME SCREEN --- */
-        #game-screen {
-            background-color: #000;
-            justify-content: space-between;
-        }
+.top-bar-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
-        .top-bar {
-            width: 100%;
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.8);
-            z-index: 10;
-            border-bottom: 1px solid #222;
-        }
+.game-title-small {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 12px;
+}
 
-        .top-bar-left {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+.btn-icon {
+  background: #222;
+  border: 1px solid #444;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
 
-        .game-title-small {
-            font-size: 0.8rem;
-            color: #ef4444;
-            font-weight: bold;
-        }
+.viewport-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #080808;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+}
 
-        .btn-icon {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
+.cctv-feed {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: contrast(1.1) brightness(.85);
+  pointer-events: none;
+}
 
-        .viewport-container {
-            position: relative;
-            flex: 1;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #111;
-            overflow: hidden;
-        }
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0,0,0,.23) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
 
-        .cctv-feed {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: contrast(1.1) brightness(0.9);
-        }
+.cam-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 5px 9px;
+  color: #00ff66;
+  background: rgba(0,0,0,.75);
+  border: 1px solid #176c3b;
+  font: 13px monospace;
+  z-index: 4;
+  pointer-events: none;
+}
 
-        .scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
-            background-size: 100% 4px;
-            pointer-events: none;
-            opacity: 0.6;
-        }
+/* Anomaly ที่สร้างด้วย CSS ไม่ต้องใช้รูปเพิ่ม */
+.anomaly-visual {
+  position: absolute;
+  width: 9%;
+  height: 32%;
+  min-width: 24px;
+  min-height: 55px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(1px);
+}
 
-        .cam-overlay {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.85rem;
-            color: #00ff66;
-            letter-spacing: 1px;
-            border: 1px solid rgba(0, 255, 102, 0.3);
-            pointer-events: none;
-        }
+.anomaly-visual::before {
+  content: "";
+  position: absolute;
+  width: 38%;
+  aspect-ratio: 1;
+  top: 0;
+  left: 31%;
+  border-radius: 50%;
+  background: #050505;
+  box-shadow: 0 0 8px rgba(0,0,0,.8);
+}
 
-        .scan-circle {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 3px solid rgba(239, 68, 68, 0.3);
-            border-top: 3px solid #ef4444;
-            transform: translate(-50%, -50%) rotate(0deg);
-            pointer-events: none;
-            display: none;
-            z-index: 20;
-        }
+.anomaly-visual::after {
+  content: "";
+  position: absolute;
+  top: 28%;
+  left: 12%;
+  width: 76%;
+  height: 68%;
+  background: #050505;
+  border-radius: 45% 45% 8% 8%;
+  clip-path: polygon(25% 0,75% 0,100% 100%,0 100%);
+}
 
-        .scan-circle.active {
-            display: block;
-            animation: spin 1.8s linear infinite;
-        }
+.scan-circle {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid rgba(239,68,68,.35);
+  border-top-color: #ef4444;
+  transform: translate(-50%, -50%);
+  display: none;
+  pointer-events: none;
+  z-index: 6;
+}
 
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
+.scan-circle.active {
+  display: block;
+  animation: spin 3s linear infinite;
+}
 
-        .controls-panel {
-            width: 100%;
-            padding: 12px;
-            background: rgba(10, 10, 10, 0.95);
-            border-top: 1px solid #222;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 10;
-        }
+@keyframes spin {
+  to { transform: translate(-50%,-50%) rotate(360deg); }
+}
 
-        .cam-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
+.status-bar {
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+  color: #aaa;
+  background: #080808;
+  font-size: 12px;
+}
 
-        .cam-btn {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #888;
-            padding: 10px 4px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-align: center;
-        }
+.controls-panel {
+  width: 100%;
+  padding: 10px;
+  background: #101010;
+  border-top: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
-        .cam-btn.active {
-            background: #ef4444;
-            color: #fff;
-            border-color: #f87171;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
+.cam-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
 
-        .file-upload-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            justify-content: space-between;
-        }
+.cam-btn {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 12px 2px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+}
 
-        .file-upload-btn {
-            background: #222;
-            border: 1px dashed #444;
-            color: #aaa;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-        }
+.cam-btn.active {
+  background: #b91c1c;
+  color: white;
+  border-color: #ef4444;
+}
 
-        input[type="file"] {
-            display: none;
-        }
-    </style>
+.file-upload-btn {
+  display: block;
+  text-align: center;
+  padding: 9px;
+  border: 1px dashed #555;
+  color: #aaa;
+  font-size: 12px;
+}
+
+#img-uploader { display: none; }
+
+@media (max-height: 500px) {
+  .controls-panel { padding: 5px; gap: 5px; }
+  .cam-btn { padding: 7px 2px; }
+  .top-bar { padding: 5px; }
+}
+</style>
 </head>
+
 <body>
 
-    <!-- MAIN MENU SCREEN -->
-    <div id="menu-screen" class="screen">
-        <div class="menu-title-container">
-            <h1 class="main-title">Night Shift</h1>
-            <h2 class="sub-title">Brain Damage</h2>
-        </div>
+<!-- เมนู -->
+<div id="menu-screen" class="screen">
+  <h1 class="main-title">Night Shift</h1>
+  <h2 class="sub-title">Brain Damage</h2>
 
-        <div class="dept-tag">(TH) · แผนกตรวจจับคนบ้า</div>
-        <div class="quote-tag">ใครอนุญาตให้มันขยับ</div>
+  <div class="dept-tag">(TH) · แผนกตรวจจับคนบ้า</div>
+  <div class="quote-tag">ใครอนุญาตให้มันขยับ</div>
 
-        <div class="selector-section">
-            <div class="pill-button active">บ้านมหัศจรรย์</div>
-            <div class="section-label">เลือกสถานที่</div>
-        </div>
+  <div class="pill-button">บ้านมหัศจรรย์</div>
+  <div class="section-label">เลือกสถานที่</div>
 
-        <button class="start-btn" onclick="startGame()">เริ่มเวร</button>
+  <button class="start-btn" onclick="startGame()">เริ่มเวร</button>
+</div>
+
+<!-- เกม -->
+<div id="game-screen" class="screen hidden">
+
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="btn-icon" onclick="exitGame()">❮ เมนู</button>
+      <span class="game-title-small">NIGHT SHIFT</span>
+    </div>
+    <button class="btn-icon" onclick="toggleFullscreen()">เต็มจอ ⛶</button>
+  </div>
+
+  <div class="viewport-container" id="viewport">
+    <img id="cctv-img" class="cctv-feed" alt="CCTV Feed">
+    <div id="anomaly-layer" class="anomaly-visual hidden"></div>
+    <div class="scanlines"></div>
+    <div id="cam-label" class="cam-overlay">CAM1-หน้าบ้าน</div>
+    <div id="scan-indicator" class="scan-circle"></div>
+  </div>
+
+  <div class="status-bar" id="status">
+    กดค้างบริเวณที่สงสัย 3 วินาที เพื่อรายงาน
+  </div>
+
+  <div class="controls-panel">
+    <div class="cam-selector">
+      <button class="cam-btn active" id="btn-cam1" onclick="switchCam(1)">CAM 1</button>
+      <button class="cam-btn" id="btn-cam2" onclick="switchCam(2)">CAM 2</button>
+      <button class="cam-btn" id="btn-cam3" onclick="switchCam(3)">CAM 3</button>
+      <button class="cam-btn" id="btn-cam4" onclick="switchCam(4)">CAM 4</button>
     </div>
 
-    <!-- GAMEPLAY SCREEN -->
-    <div id="game-screen" class="screen hidden">
-        <div class="top-bar">
-            <div class="top-bar-left">
-                <button class="btn-icon" onclick="exitGame()">❮ เมนู</button>
-                <span class="game-title-small">NIGHT SHIFT</span>
-            </div>
-            <button class="btn-icon" onclick="toggleFullscreen()">เต็มจอ ⛶</button>
-        </div>
+    <label for="img-uploader" class="file-upload-btn">
+      📷 เปลี่ยนภาพกล้องนี้ชั่วคราว
+    </label>
+    <input type="file" id="img-uploader" accept="image/*">
+  </div>
+</div>
 
-        <div class="viewport-container" id="viewport" onmousedown="startScan(event)" onmouseup="cancelScan()" onmouseleave="cancelScan()" ontouchstart="startScan(event)" ontouchend="cancelScan()">
-            <img id="cctv-img" class="cctv-feed" src="" alt="CCTV Feed">
-            <div class="scanlines"></div>
-            <div id="cam-label" class="cam-overlay">CAM1-หน้าบ้าน</div>
-            <div id="scan-indicator" class="scan-circle"></div>
-        </div>
+<script>
+// รูปจากลิงก์ที่ให้มา
+const camData = {
+  1: {
+    name: "CAM1-หน้าบ้าน",
+    normalImg: "https://i.ibb.co/21mfB9mJ/file-000000003c988211b0c3ff039547d798.png",
+    hasAnomaly: false,
+    anomalyArea: { x: 72, y: 58 }
+  },
+  2: {
+    name: "CAM2-ทางเข้า",
+    normalImg: "https://i.ibb.co/vC8RxnjN/75287-FFB-AF44-4791-B2D1-656-A75-BE7-B92.png",
+    hasAnomaly: false,
+    anomalyArea: { x: 70, y: 60 }
+  },
+  3: {
+    name: "CAM3-ห้องนอน",
+    normalImg: "https://i.ibb.co/0RDpWjDM/file-000000002d2c82118cc9bb6d294dda70.png",
+    hasAnomaly: false,
+    anomalyArea: { x: 74, y: 58 }
+  },
+  4: {
+    name: "CAM4-ห้องครัว",
+    normalImg: "https://i.ibb.co/Mk0y7SPf/66617-C32-C425-4-BEA-ACC5-4-D537-C5-A4-EAC.png",
+    hasAnomaly: false,
+    anomalyArea: { x: 68, y: 57 }
+  }
+};
 
-        <div class="controls-panel">
-            <div class="cam-selector">
-                <button class="cam-btn active" id="btn-cam1" onclick="switchCam(1)">CAM 1</button>
-                <button class="cam-btn" id="btn-cam2" onclick="switchCam(2)">CAM 2</button>
-                <button class="cam-btn" id="btn-cam3" onclick="switchCam(3)">CAM 3</button>
-                <button class="cam-btn" id="btn-cam4" onclick="switchCam(4)">CAM 4</button>
-            </div>
+let currentCam = 1;
+let scanTimer = null;
+let scanPosition = null;
+let score = 0;
+let foundCount = 0;
 
-            <div class="file-upload-row">
-                <label for="img-uploader" class="file-upload-btn">📷 เปลี่ยนภาพกล้องนี้เฉพาะกิจ</label>
-                <input type="file" id="img-uploader" accept="image/*" onchange="uploadImage(event)">
-            </div>
-        </div>
-    </div>
+const viewport = document.getElementById("viewport");
+const cameraImage = document.getElementById("cctv-img");
+const anomalyLayer = document.getElementById("anomaly-layer");
+const indicator = document.getElementById("scan-indicator");
+const statusText = document.getElementById("status");
 
-    <script>
-        // นำภาพทั้ง 4 รูปที่คุณส่งมาใส่ไว้ในระบบกล้องแต่ละตัวเรียบร้อยแล้ว
-        const camData = {
-            1: { 
-                name: "CAM1-หน้าบ้าน", 
-                normalImg: "1000017812.png", // รูปแรกของคุณ
-                anomalyImg: "1000017812.png",
-                hasAnomaly: false,
-                anomalyArea: { x: 200, y: 150, radius: 80 }
-            },
-            2: { 
-                name: "CAM2-ทางเข้า", 
-                normalImg: "1000017810.png", // รูปที่สองของคุณ
-                anomalyImg: "1000017810.png",
-                hasAnomaly: false,
-                anomalyArea: { x: 150, y: 200, radius: 80 }
-            },
-            3: { 
-                name: "CAM3-ห้องนอน", 
-                normalImg: "1000017809.png", // รูปที่สามของคุณ
-                anomalyImg: "1000017809.png",
-                hasAnomaly: false,
-                anomalyArea: { x: 250, y: 180, radius: 80 }
-            },
-            4: { 
-                name: "CAM4-ห้องครัว", 
-                normalImg: "1000017815.png", // รูปที่สี่ของคุณ
-                anomalyImg: "1000017815.png",
-                hasAnomaly: false,
-                anomalyArea: { x: 180, y: 160, radius: 80 }
-            }
-        };
+function startGame() {
+  document.getElementById("menu-screen").classList.add("hidden");
+  document.getElementById("game-screen").classList.remove("hidden");
 
-        let currentCam = 1;
-        let scanTimer = null;
+  score = 0;
+  foundCount = 0;
 
-        function startGame() {
-            document.getElementById('menu-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            
-            // สุ่มให้มีโอกาสเจอความผิดปกติ 50%
-            for (let i = 1; i <= 4; i++) {
-                camData[i].hasAnomaly = Math.random() < 0.5;
-            }
-            
-            switchCam(1);
-        }
+  // สุ่มให้มี Anomaly อย่างน้อยหนึ่งกล้อง
+  let anomalyCount = 0;
 
-        function exitGame() {
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('menu-screen').classList.remove('hidden');
-        }
+  for (let i = 1; i <= 4; i++) {
+    camData[i].hasAnomaly = Math.random() < 0.5;
+    if (camData[i].hasAnomaly) anomalyCount++;
+  }
 
-        function switchCam(camNum) {
-            currentCam = camNum;
-            document.querySelectorAll('.cam-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-cam${camNum}`).classList.add('active');
+  if (anomalyCount === 0) {
+    camData[Math.ceil(Math.random() * 4)].hasAnomaly = true;
+  }
 
-            const cam = camData[camNum];
-            document.getElementById('cam-label').innerText = cam.name;
-            document.getElementById('cctv-img').src = cam.normalImg;
-        }
+  switchCam(1);
+}
 
-        function uploadImage(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    camData[currentCam].normalImg = evt.target.result;
-                    camData[currentCam].anomalyImg = evt.target.result;
-                    document.getElementById('cctv-img').src = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+function exitGame() {
+  cancelScan();
+  document.getElementById("game-screen").classList.add("hidden");
+  document.getElementById("menu-screen").classList.remove("hidden");
+}
 
-        function startScan(e) {
-            if (e.type === 'touchstart') e.preventDefault();
-            
-            const viewport = document.getElementById('viewport');
-            const rect = viewport.getBoundingClientRect();
-            const indicator = document.getElementById('scan-indicator');
+function switchCam(number) {
+  cancelScan();
+  currentCam = number;
 
-            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+  document.querySelectorAll(".cam-btn").forEach(button => {
+    button.classList.remove("active");
+  });
 
-            if (!clientX || !clientY) return;
+  document.getElementById("btn-cam" + number).classList.add("active");
 
-            const x = clientX - rect.left;
-            const y = clientY - rect.top;
+  const cam = camData[number];
+  document.getElementById("cam-label").textContent = cam.name;
+  cameraImage.src = cam.normalImg;
 
-            indicator.style.left = `${x}px`;
-            indicator.style.top = `${y}px`;
-            indicator.classList.add('active');
+  updateAnomaly();
+}
 
-            scanTimer = setTimeout(() => {
-                cancelScan();
-                const cam = camData[currentCam];
-                const distance = Math.hypot(x - cam.anomalyArea.x, y - cam.anomalyArea.y);
-                
-                if (cam.hasAnomaly && distance <= cam.anomalyArea.radius) {
-                    alert(`🎉 ยอดเยี่ยม! ตรวจพบความผิดปกติใน ${cam.name} สำเร็จ!`);
-                    cam.hasAnomaly = false;
-                } else {
-                    alert(`🔍 สแกนตำแหน่ง (${Math.round(x)}, ${Math.round(y)}) เรียบร้อย — ไม่พบสิ่งผิดปกติ`);
-                }
-            }, 1800);
-        }
+function updateAnomaly() {
+  const cam = camData[currentCam];
 
-        function cancelScan() {
-            if (scanTimer) clearTimeout(scanTimer);
-            document.getElementById('scan-indicator').classList.remove('active');
-        }
+  if (cam.hasAnomaly) {
+    anomalyLayer.classList.remove("hidden");
+    anomalyLayer.style.left = cam.anomalyArea.x + "%";
+    anomalyLayer.style.top = cam.anomalyArea.y + "%";
+  } else {
+    anomalyLayer.classList.add("hidden");
+  }
+}
 
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {});
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        }
-    </script>
+// เลือกรูปอื่นจากมือถือได้ แต่จะเปลี่ยนเฉพาะรอบที่เปิดอยู่
+document.getElementById("img-uploader").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    camData[currentCam].normalImg = e.target.result;
+    cameraImage.src = e.target.result;
+  };
+
+  reader.readAsDataURL(file);
+  event.target.value = "";
+});
+
+// กดค้าง 3 วินาทีเพื่อสแกน
+viewport.addEventListener("pointerdown", function(event) {
+  if (event.target.closest("button")) return;
+
+  event.preventDefault();
+  cancelScan();
+
+  const rect = viewport.getBoundingClientRect();
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  scanPosition = {
+    x: x,
+    y: y,
+    pointerId: event.pointerId
+  };
+
+  indicator.style.left = x + "px";
+  indicator.style.top = y + "px";
+  indicator.classList.add("active");
+
+  statusText.textContent = "กำลังตรวจสอบ... กดค้างไว้ให้ครบ 3 วินาที";
+
+  scanTimer = setTimeout(() => {
+    const cam = camData[currentCam];
+
+    const px = (scanPosition.x / rect.width) * 100;
+    const py = (scanPosition.y / rect.height) * 100;
+
+    const dx = px - cam.anomalyArea.x;
+    const dy = py - cam.anomalyArea.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    indicator.classList.remove("active");
+    scanTimer = null;
+
+    if (cam.hasAnomaly && distance < 12) {
+      cam.hasAnomaly = false;
+      score += 100;
+      foundCount++;
+
+      updateAnomaly();
+
+      statusText.textContent =
+        "ตรวจพบ Anomaly! คะแนน " + score;
+
+      alert("ตรวจพบความผิดปกติใน " + cam.name + " สำเร็จ! คะแนน +100");
+    } else {
+      statusText.textContent = "ไม่พบความผิดปกติในตำแหน่งนี้";
+      alert("ไม่พบ Anomaly ลองตรวจสอบกล้องอีกครั้ง");
+    }
+  }, 3000);
+});
+
+function cancelScan() {
+  if (scanTimer !== null) {
+    clearTimeout(scanTimer);
+    scanTimer = null;
+  }
+
+  indicator.classList.remove("active");
+}
+
+viewport.addEventListener("pointerup", cancelScan);
+viewport.addEventListener("pointercancel", cancelScan);
+viewport.addEventListener("pointerleave", cancelScan);
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+// แจ้งเตือนเมื่อโหลดภาพไม่สำเร็จ
+cameraImage.addEventListener("error", function() {
+  statusText.textContent =
+    "โหลดรูปไม่สำเร็จ กรุณาตรวจสอบลิงก์อินเทอร์เน็ต";
+});
+
+cameraImage.addEventListener("load", function() {
+  statusText.textContent =
+    "กดค้างบริเวณที่สงสัย 3 วินาที เพื่อรายงาน";
+});
+</script>
+
 </body>
 </html>
